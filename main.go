@@ -3,9 +3,10 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
+	"regexp"
+	"strconv"
 	"strings"
 	"text/template"
 )
@@ -39,20 +40,23 @@ func handleFavicon(w http.ResponseWriter, r *http.Request) {
 func showStar(w http.ResponseWriter, r *http.Request) {
 
 	username := strings.SplitN(r.URL.Path, "/", 3)[1]
-	fmt.Printf("%v\n", username)
+	log.Printf("%v\n", username)
 
 	resp, err := http.Get("https://api.github.com/users/" + username + "/starred")
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		w.Write([]byte("Server error\n"))
+		return
 	}
 	defer resp.Body.Close()
 
-	fmt.Printf("%v\n\n", resp.Header.Get("Link"))
+	pages, err := getPagesCount(resp.Header.Get("Link"))
+	log.Printf("%v\n", pages)
 
 	var repos []staredRepos
 
 	if err := json.NewDecoder(resp.Body).Decode(&repos); err != nil {
-		fmt.Printf("%v\n", err)
+		log.Printf("%v\n", err)
 		w.Write([]byte("Wrong username"))
 		return
 	}
@@ -60,4 +64,24 @@ func showStar(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("html/index.html")
 
 	t.Execute(w, repos)
+}
+
+func getPagesCount(s string) (i int64, err error) {
+	re, err := regexp.Compile("page=\\d+")
+	if err != nil {
+		return 0, err
+	}
+	found := re.FindAllString(s, -1)
+
+	re2, err := regexp.Compile("\\d+")
+	if err != nil {
+		return 0, err
+	}
+
+	i, err = strconv.ParseInt(re2.FindString(found[1]), 10, 64)
+	if err != nil {
+		return 0, err
+	}
+
+	return i, nil
 }
