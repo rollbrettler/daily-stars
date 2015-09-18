@@ -30,8 +30,9 @@ func handleFavicon(w http.ResponseWriter, r *http.Request) {
 
 func showStar(w http.ResponseWriter, r *http.Request) {
 	var s stars.Stars
+	s.URL = r.URL
 
-	repos, err := s.Repos(r.URL)
+	repos, err := s.Repos()
 	if err != nil {
 		w.Write([]byte("Wrong username"))
 	}

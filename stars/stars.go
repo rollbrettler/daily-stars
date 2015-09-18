@@ -10,27 +10,55 @@ import (
 	"strings"
 )
 
+const (
+	apiEnpoint = "https://api.github.com/users/"
+	apiPath    = "/starred"
+)
+
+// Stars …
 type Stars struct {
+	URL      *url.URL
+	Pages    int64
+	Username string
 }
 
-type staredRepos struct {
+// StaredRepos …
+type StaredRepos struct {
 	Name        string `json:"name"`
 	URL         string `json:"html_url"`
 	Description string `json:"description"`
 }
 
-func (s *Stars) Repos(url *url.URL) (repos []staredRepos, err error) {
-	username := strings.SplitN(url.Path, "/", 3)[1]
-	log.Printf("%v\n", username)
+// Repos …
+func (s *Stars) Repos() ([]StaredRepos, error) {
+	var repos []StaredRepos
 
-	resp, err := http.Get("https://api.github.com/users/" + username + "/starred")
+	s.Username = strings.SplitN(s.URL.Path, "/", 3)[1]
+	log.Printf("%v\n", s.Username)
+
+	r, err := s.starsFromPage(1)
+	if err != nil {
+		return nil, err
+	}
+	repos = append(repos, r...)
+
+	return repos, nil
+}
+
+func (s *Stars) starsFromPage(p int64) ([]StaredRepos, error) {
+	var repos []StaredRepos
+
+	apiURL := apiEnpoint + s.Username + apiPath + "?page=" + strconv.Itoa(int(p))
+
+	log.Printf("%v\n", apiURL)
+	resp, err := http.Get(apiURL)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	pages, err := getPagesCount(resp.Header.Get("Link"))
-	log.Printf("%v\n", pages)
+	s.Pages, err = pagesCount(resp.Header.Get("Link"))
+	log.Printf("%v\n", s.Pages)
 
 	if err := json.NewDecoder(resp.Body).Decode(&repos); err != nil {
 		log.Printf("%v\n", err)
@@ -40,7 +68,7 @@ func (s *Stars) Repos(url *url.URL) (repos []staredRepos, err error) {
 	return repos, nil
 }
 
-func getPagesCount(s string) (i int64, err error) {
+func pagesCount(s string) (int64, error) {
 	re, err := regexp.Compile("page=\\d+")
 	if err != nil {
 		return 0, err
@@ -52,7 +80,7 @@ func getPagesCount(s string) (i int64, err error) {
 		return 0, err
 	}
 
-	i, err = strconv.ParseInt(re2.FindString(found[1]), 10, 64)
+	i, err := strconv.ParseInt(re2.FindString(found[1]), 10, 64)
 	if err != nil {
 		return 0, err
 	}
