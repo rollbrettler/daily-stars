@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"regexp"
 	"strconv"
-	"strings"
 )
 
 const (
@@ -17,9 +15,9 @@ const (
 
 // Stars …
 type Stars struct {
-	URL      *url.URL
 	Pages    int
 	Username string
+	stared	 []StaredRepos
 }
 
 // StaredRepos …
@@ -31,10 +29,6 @@ type StaredRepos struct {
 
 // Repos …
 func (s *Stars) Repos() ([]StaredRepos, error) {
-	var repos []StaredRepos
-
-	s.Username = strings.SplitN(s.URL.Path, "/", 3)[1]
-	log.Printf("%v\n", s.Username)
 
 	if err := s.setPagesCount(); err != nil {
 		return nil, err
@@ -44,9 +38,9 @@ func (s *Stars) Repos() ([]StaredRepos, error) {
 	if err != nil {
 		return nil, err
 	}
-	repos = append(repos, r...)
+	s.stared = append(s.stared, r...)
 
-	return repos, nil
+	return s.stared, nil
 }
 
 func (s *Stars) setPagesCount() error {
@@ -66,7 +60,7 @@ func (s *Stars) setPagesCount() error {
 }
 
 func (s *Stars) starsFromPage(p int) ([]StaredRepos, error) {
-	var repos []StaredRepos
+	var r []StaredRepos
 
 	apiURL := fmt.Sprintf(apiPath+"?page=%v", s.Username, strconv.Itoa(p))
 	log.Printf("%v\n", apiURL)
@@ -77,12 +71,12 @@ func (s *Stars) starsFromPage(p int) ([]StaredRepos, error) {
 	}
 	defer resp.Body.Close()
 
-	if err := json.NewDecoder(resp.Body).Decode(&repos); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
 		log.Printf("%v\n", err)
 		return nil, err
 	}
 
-	return repos, nil
+	return r, nil
 }
 
 func pagesCount(s string) (int, error) {

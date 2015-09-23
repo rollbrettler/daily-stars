@@ -3,7 +3,10 @@ package main
 import (
 	"flag"
 	"net/http"
+	"net/url"
 	"text/template"
+	"log"
+	"strings"
 
 	"github.com/rollbrettler/daily-stars/stars"
 )
@@ -29,8 +32,12 @@ func handleFavicon(w http.ResponseWriter, r *http.Request) {
 }
 
 func showStar(w http.ResponseWriter, r *http.Request) {
-	var s stars.Stars
-	s.URL = r.URL
+
+	username := username(r.URL)
+	log.Printf("%v\n", username)
+	s := stars.Stars{
+		Username: username,
+	}
 
 	repos, err := s.Repos()
 	if err != nil {
@@ -40,4 +47,8 @@ func showStar(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("html/index.html")
 
 	t.Execute(w, repos)
+}
+
+func username(s *url.URL) string {
+	return strings.SplitN(s.Path, "/", 3)[1]
 }
