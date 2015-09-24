@@ -10,14 +10,14 @@ import (
 )
 
 const (
-	apiPath = "https://api.github.com/users/%v/starred"
+	apiPath = "https://api.github.com/users/%v/starred?per_page=1"
 )
 
 // Stars …
 type Stars struct {
 	Pages    int
 	Username string
-	stared	 []StaredRepos
+	stared   []StaredRepos
 }
 
 // StaredRepos …
@@ -62,7 +62,7 @@ func (s *Stars) setPagesCount() error {
 func (s *Stars) starsFromPage(p int) ([]StaredRepos, error) {
 	var r []StaredRepos
 
-	apiURL := fmt.Sprintf(apiPath+"?page=%v", s.Username, strconv.Itoa(p))
+	apiURL := fmt.Sprintf(apiPath+"&page=%v", s.Username, strconv.Itoa(p))
 	log.Printf("%v\n", apiURL)
 
 	resp, err := http.Get(apiURL)
