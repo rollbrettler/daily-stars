@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"text/template"
 
@@ -19,6 +20,12 @@ func init() {
 
 func main() {
 	flag.Parse()
+
+	envPort := os.Getenv("PORT")
+
+	if envPort != "" {
+		port = ":" + envPort
+	}
 
 	http.HandleFunc("/", showStar)
 	fs := http.FileServer(http.Dir("assets"))
