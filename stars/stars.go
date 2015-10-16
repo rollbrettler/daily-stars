@@ -10,7 +10,8 @@ import (
 )
 
 const (
-	apiPath = "https://api.github.com/users/%v/starred?per_page=1"
+	pageCount = 1
+	apiPath   = "https://api.github.com/users/%v/starred?per_page=" + pageCount
 )
 
 // Stars …
@@ -88,7 +89,7 @@ func pagesCount(s string) (int, error) {
 		return 0, err
 	}
 	foundStrings := re.FindAllString(s, -1)
-	found := foundStrings[len(foundStrings) - 1]
+	found := foundStrings[len(foundStrings)-1]
 
 	re2, err := regexp.Compile("\\d+")
 	if err != nil {

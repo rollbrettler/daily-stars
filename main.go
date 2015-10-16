@@ -2,11 +2,11 @@ package main
 
 import (
 	"flag"
+	"log"
 	"net/http"
 	"net/url"
-	"text/template"
-	"log"
 	"strings"
+	"text/template"
 
 	"github.com/rollbrettler/daily-stars/stars"
 )
