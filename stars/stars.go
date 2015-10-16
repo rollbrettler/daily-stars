@@ -87,7 +87,8 @@ func pagesCount(s string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	found := re.FindAllString(s, -1)[1]
+	foundStrings := re.FindAllString(s, -1)
+	found := foundStrings[len(foundStrings) - 1]
 
 	re2, err := regexp.Compile("\\d+")
 	if err != nil {
