@@ -4,13 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"regexp"
 	"strconv"
+	"time"
 )
 
 const (
-	pageCount = 1
+	pageCount = "1"
 	apiPath   = "https://api.github.com/users/%v/starred?per_page=" + pageCount
 )
 
@@ -35,7 +37,7 @@ func (s *Stars) Repos() ([]StaredRepos, error) {
 		return nil, err
 	}
 
-	r, err := s.starsFromPage(1)
+	r, err := s.starsFromPage(randomPageNumber(s.Pages))
 	if err != nil {
 		return nil, err
 	}
@@ -102,4 +104,19 @@ func pagesCount(s string) (int, error) {
 	}
 
 	return i, nil
+}
+
+func randomPageNumber(i int) int {
+	const shortForm = "2006-January-02"
+
+	year, month, day := time.Now().Date()
+
+	date := fmt.Sprintf("%v-%v-%v", year, month, day)
+	t, _ := time.Parse(shortForm, date)
+	rand.Seed(t.Unix())
+
+	randomNumber := rand.Intn(i)
+	log.Printf("Random: %v\n", randomNumber)
+
+	return randomNumber
 }
