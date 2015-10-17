@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"log"
 	"net/http"
@@ -40,7 +41,7 @@ func handleFavicon(w http.ResponseWriter, r *http.Request) {
 
 func showStar(w http.ResponseWriter, r *http.Request) {
 
-	username := username(r.URL)
+	username, suffix := username(r.URL)
 	log.Printf("%v\n", username)
 	s := stars.Stars{
 		Username: username,
@@ -49,13 +50,33 @@ func showStar(w http.ResponseWriter, r *http.Request) {
 	repos, err := s.Repos()
 	if err != nil {
 		w.Write([]byte("Wrong username"))
+		return
 	}
 
 	t, _ := template.ParseFiles("html/index.html")
 
-	t.Execute(w, repos)
+	if suffix {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Write(jsonResponse(repos))
+	} else {
+		t.Execute(w, repos)
+	}
+
 }
 
-func username(s *url.URL) string {
-	return strings.SplitN(s.Path, "/", 3)[1]
+func jsonResponse(r []stars.StaredRepos) []byte {
+	m, err := json.Marshal(r)
+	if err != nil {
+		return []byte("{'error': 'Wrong username'}")
+	}
+	return m
+}
+
+func username(s *url.URL) (string, bool) {
+	u := strings.Split(s.Path, "/")
+	i := strings.Index(u[len(u)-1], ".json")
+	if i >= 0 {
+		return u[len(u)-1][:i], true
+	}
+	return u[len(u)-1], false
 }
