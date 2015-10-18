@@ -42,7 +42,13 @@ func handleFavicon(w http.ResponseWriter, r *http.Request) {
 func showStar(w http.ResponseWriter, r *http.Request) {
 
 	username, suffix := username(r.URL)
-	log.Printf("%v\n", username)
+	if username == "" {
+		t, _ :=template.ParseFiles("html/index.html")
+		t.Execute(w, r.Host)
+		return
+	}
+	log.Printf("Username: %v\n", username)
+
 	s := stars.Stars{
 		Username: username,
 	}
@@ -53,7 +59,7 @@ func showStar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, _ := template.ParseFiles("html/index.html")
+	t, _ := template.ParseFiles("html/result.html")
 
 	if suffix {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
