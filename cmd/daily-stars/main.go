@@ -43,15 +43,13 @@ func showStar(w http.ResponseWriter, r *http.Request) {
 
 	username, suffix := username(r.URL)
 	if username == "" {
-		t, _ :=template.ParseFiles("html/index.html")
+		t, _ := template.ParseFiles("html/index.html")
 		t.Execute(w, r.Host)
 		return
 	}
 	log.Printf("Username: %v\n", username)
 
-	s := stars.Stars{
-		Username: username,
-	}
+	s := stars.New(username)
 
 	repos, err := s.Repos()
 	if err != nil {
@@ -72,11 +70,11 @@ func showStar(w http.ResponseWriter, r *http.Request) {
 func jsonResponse(w http.ResponseWriter, r []stars.StaredRepos) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	marshaledJson, err := json.Marshal(r)
+	marshaledJSON, err := json.Marshal(r)
 	if err != nil {
 		w.Write([]byte("{'error': 'Wrong username'}"))
 	}
-	w.Write(marshaledJson)
+	w.Write(marshaledJSON)
 }
 
 func username(s *url.URL) (string, bool) {

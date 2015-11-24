@@ -13,21 +13,28 @@ const (
 	apiPath   = "https://api.github.com/users/%v/starred?per_page=" + pageCount
 )
 
-// Stars …
+// Stars is the returned struct
 type Stars struct {
 	Pages    int
 	Username string
 	stared   []StaredRepos
 }
 
-// StaredRepos …
+// StaredRepos is a struct to unmarshal the json response
 type StaredRepos struct {
 	Name        string `json:"name"`
 	URL         string `json:"html_url"`
 	Description string `json:"description"`
 }
 
-// Repos …
+// New returns a new stars struct with the given username
+func New(username string) Stars {
+	return Stars{
+		Username: username,
+	}
+}
+
+// Repos returns a slice of StaredRepos
 func (s *Stars) Repos() ([]StaredRepos, error) {
 
 	if err := s.setPagesCount(); err != nil {

@@ -2,7 +2,7 @@
 
 Review stared GitHub repositories.
 
-![js-standard-style](https://img.shields.io/badge/Microservice-Ready%F0%9F%91%8D-green.svg)
+![microservice-ready](https://img.shields.io/badge/Microservice-Ready%F0%9F%91%8D-green.svg)
 
 ## Install
 
