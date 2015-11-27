@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -13,24 +14,35 @@ func pagesCount(s string) (int, error) {
 	if s == "" {
 		return 1, nil
 	}
-	re, err := regexp.Compile("page=\\d+")
-	if err != nil {
-		return 0, err
-	}
-	foundStrings := re.FindAllString(s, -1)
-	found := foundStrings[len(foundStrings)-1]
 
-	re2, err := regexp.Compile("\\d+")
-	if err != nil {
-		return 0, err
+	m := make(map[string]int)
+
+	pages := regexp.MustCompile(`.*[\?&]page\=(?P<page>\d+).*rel=\"(?P<rel>.*)\"`)
+
+	for _, link := range strings.Split(s, ",") {
+		var rel string
+		var number int
+
+		match := pages.FindStringSubmatch(link)
+
+		for i, name := range pages.SubexpNames() {
+			if name == "rel" {
+				rel = match[i]
+			}
+			if name == "page" {
+				number, _ = strconv.Atoi(match[i])
+			}
+		}
+
+		if rel != "" && number > 0 {
+			m[rel] = number
+		}
 	}
 
-	i, err := strconv.Atoi(re2.FindString(found))
-	if err != nil {
-		return 0, err
+	if m["last"] == 0 && m["prev"] > 0 {
+		return m["prev"] + 1, nil
 	}
-
-	return i, nil
+	return m["last"], nil
 }
 
 func randomPageNumber(i int) int {
