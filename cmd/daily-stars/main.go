@@ -20,13 +20,7 @@ func init() {
 }
 
 func main() {
-	flag.Parse()
-
-	envPort := os.Getenv("PORT")
-
-	if envPort != "" {
-		port = ":" + envPort
-	}
+	parseConfigFlags()
 
 	http.HandleFunc("/", showStar)
 	fs := http.FileServer(http.Dir("assets"))
@@ -84,4 +78,14 @@ func username(s *url.URL) (string, bool) {
 		return u[len(u)-1][:i], true
 	}
 	return u[len(u)-1], false
+}
+
+func parseConfigFlags() {
+	flag.Parse()
+
+	envPort := os.Getenv("PORT")
+
+	if envPort != "" {
+		port = ":" + envPort
+	}
 }
