@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strings"
+	"regexp"
 	"text/template"
 
 	"github.com/rollbrettler/daily-stars/stars"
@@ -53,7 +53,7 @@ func showStar(w http.ResponseWriter, r *http.Request) {
 
 	t, _ := template.ParseFiles("html/result.html")
 
-	if suffix {
+	if suffix == "json" {
 		jsonResponse(w, repos)
 	} else {
 		t.Execute(w, repos)
@@ -71,13 +71,21 @@ func jsonResponse(w http.ResponseWriter, r []stars.StaredRepos) {
 	w.Write(marshaledJSON)
 }
 
-func username(s *url.URL) (string, bool) {
-	u := strings.Split(s.Path, "/")
-	i := strings.Index(u[len(u)-1], ".json")
-	if i >= 0 {
-		return u[len(u)-1][:i], true
+func username(url *url.URL) (string, string) {
+	var username, suffix string
+	regex := regexp.MustCompile(`\/(?P<username>[^.\s]*)\.?(?P<suffix>[^.\s]*)`)
+	match := regex.FindStringSubmatch(url.Path)
+
+	for i, name := range regex.SubexpNames() {
+		switch name {
+		case "username":
+			username = match[i]
+		case "suffix":
+			suffix = match[i]
+		}
 	}
-	return u[len(u)-1], false
+
+	return username, suffix
 }
 
 func parseConfigFlags() {

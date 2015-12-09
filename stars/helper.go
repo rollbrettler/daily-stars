@@ -26,10 +26,10 @@ func pagesCount(s string) (int, error) {
 		match := pages.FindStringSubmatch(link)
 
 		for i, name := range pages.SubexpNames() {
-			if name == "rel" {
+			switch name {
+			case "rel":
 				rel = match[i]
-			}
-			if name == "page" {
+			case "page":
 				number, _ = strconv.Atoi(match[i])
 			}
 		}
