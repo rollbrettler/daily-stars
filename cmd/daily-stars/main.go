@@ -8,6 +8,7 @@ import (
 	"os"
 	"text/template"
 
+	e "github.com/rollbrettler/daily-stars/errors"
 	"github.com/rollbrettler/daily-stars/stars"
 	"github.com/rollbrettler/daily-stars/username"
 )
@@ -46,7 +47,8 @@ func showStar(w http.ResponseWriter, r *http.Request) {
 
 	repos, err := s.Repos()
 	if err != nil {
-		w.Write([]byte("Wrong username"))
+		wrongUsername, _ := json.Marshal(e.WrongUsername)
+		w.Write(wrongUsername)
 		return
 	}
 
@@ -66,7 +68,9 @@ func jsonResponse(w http.ResponseWriter, r []stars.StaredRepos) {
 
 	marshaledJSON, err := json.Marshal(r)
 	if err != nil {
-		w.Write([]byte("{'error': 'Wrong username'}"))
+		wrongUsername, _ := json.Marshal(e.WrongUsername)
+		w.Write(wrongUsername)
+		return
 	}
 	w.Write(marshaledJSON)
 }
