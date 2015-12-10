@@ -5,12 +5,11 @@ import (
 	"flag"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
-	"regexp"
 	"text/template"
 
 	"github.com/rollbrettler/daily-stars/stars"
+	"github.com/rollbrettler/daily-stars/username"
 )
 
 var port string
@@ -35,7 +34,7 @@ func handleFavicon(w http.ResponseWriter, r *http.Request) {
 
 func showStar(w http.ResponseWriter, r *http.Request) {
 
-	username, suffix := username(r.URL)
+	username, suffix := username.WithSuffix(r.URL.Path)
 	if username == "" {
 		t, _ := template.ParseFiles("html/index.html")
 		t.Execute(w, r.Host)
@@ -53,9 +52,10 @@ func showStar(w http.ResponseWriter, r *http.Request) {
 
 	t, _ := template.ParseFiles("html/result.html")
 
-	if suffix == "json" {
+	switch suffix {
+	case "json":
 		jsonResponse(w, repos)
-	} else {
+	default:
 		t.Execute(w, repos)
 	}
 
@@ -69,23 +69,6 @@ func jsonResponse(w http.ResponseWriter, r []stars.StaredRepos) {
 		w.Write([]byte("{'error': 'Wrong username'}"))
 	}
 	w.Write(marshaledJSON)
-}
-
-func username(url *url.URL) (string, string) {
-	var username, suffix string
-	regex := regexp.MustCompile(`\/(?P<username>[^.\s]*)\.?(?P<suffix>[^.\s]*)`)
-	match := regex.FindStringSubmatch(url.Path)
-
-	for i, name := range regex.SubexpNames() {
-		switch name {
-		case "username":
-			username = match[i]
-		case "suffix":
-			suffix = match[i]
-		}
-	}
-
-	return username, suffix
 }
 
 func parseConfigFlags() {
