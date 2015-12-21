@@ -34,7 +34,6 @@ func handleFavicon(w http.ResponseWriter, r *http.Request) {
 }
 
 func showStar(w http.ResponseWriter, r *http.Request) {
-
 	username, suffix := username.WithSuffix(r.URL.Path)
 	if username == "" {
 		t, _ := template.ParseFiles("html/index.html")
@@ -60,7 +59,6 @@ func showStar(w http.ResponseWriter, r *http.Request) {
 	default:
 		t.Execute(w, repos)
 	}
-
 }
 
 func jsonResponse(w http.ResponseWriter, r []stars.StaredRepos) {
