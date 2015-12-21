@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"text/template"
 
 	e "github.com/rollbrettler/daily-stars/errors"
 	"github.com/rollbrettler/daily-stars/stars"
@@ -36,8 +35,7 @@ func handleFavicon(w http.ResponseWriter, r *http.Request) {
 func showStar(w http.ResponseWriter, r *http.Request) {
 	username, suffix := username.WithSuffix(r.URL.Path)
 	if username == "" {
-		t, _ := template.ParseFiles("html/index.html")
-		t.Execute(w, r.Host)
+		jsonErrorResonse(w, e.NoUsername)
 		return
 	}
 	log.Printf("Username: %v\n", username)
@@ -46,18 +44,15 @@ func showStar(w http.ResponseWriter, r *http.Request) {
 
 	repos, err := s.Repos()
 	if err != nil {
-		wrongUsername, _ := json.Marshal(e.WrongUsername)
-		w.Write(wrongUsername)
+		jsonErrorResonse(w, e.WrongUsername)
 		return
 	}
-
-	t, _ := template.ParseFiles("html/result.html")
 
 	switch suffix {
 	case "json":
 		jsonResponse(w, repos)
 	default:
-		t.Execute(w, repos)
+		jsonResponse(w, repos)
 	}
 }
 
@@ -66,11 +61,15 @@ func jsonResponse(w http.ResponseWriter, r []stars.StaredRepos) {
 
 	marshaledJSON, err := json.Marshal(r)
 	if err != nil {
-		wrongUsername, _ := json.Marshal(e.WrongUsername)
-		w.Write(wrongUsername)
+		jsonErrorResonse(w, e.WrongUsername)
 		return
 	}
 	w.Write(marshaledJSON)
+}
+
+func jsonErrorResonse(w http.ResponseWriter, err e.ResponseError) {
+	errorJSON, _ := json.Marshal(err)
+	w.Write(errorJSON)
 }
 
 func parseConfigFlags() {
