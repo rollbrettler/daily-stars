@@ -3,6 +3,8 @@ package stars
 import (
 	"strconv"
 	"testing"
+
+	e "github.com/rollbrettler/daily-stars/errors"
 )
 
 func TestNew(t *testing.T) {
@@ -22,7 +24,7 @@ func TestRepos(t *testing.T) {
 	s = New("octocat")
 	r, err := s.Repos()
 
-	if err != nil {
+	if err != (e.ResponseError{}) {
 		t.Error("Expected no errors while fetching the repos, got ", err)
 		return
 	}

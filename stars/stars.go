@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	e "github.com/rollbrettler/daily-stars/errors"
 )
@@ -44,13 +45,26 @@ func (s *Stars) Repos() ([]StaredRepos, e.ResponseError) {
 		return nil, e.Unhandled
 	}
 
-	r, err := s.starsFromPage(randomPageNumber(s.Pages))
-	if err != nil {
-		return nil, e.NoUsername
-	}
-	s.stared = append(s.stared, r...)
+	c1 := make(chan []StaredRepos, 1)
+	errCh := make(chan e.ResponseError, 1)
+	go func() {
+		r, err := s.starsFromPage(randomPageNumber(s.Pages))
+		if err != nil {
+			errCh <- e.NoUsername
+			return
+		}
+		c1 <- r
+	}()
 
-	return s.stared, e.ResponseError{}
+	select {
+	case res := <-c1:
+		s.stared = append(s.stared, res...)
+		return s.stared, e.ResponseError{}
+	case <-time.After(time.Second * 5):
+		return nil, e.TimeOut
+	case err := <-errCh:
+		return nil, err
+	}
 }
 
 func (s *Stars) setPagesCount() error {

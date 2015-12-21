@@ -12,6 +12,9 @@ func (e ResponseError) Error() string {
 // Unhandled response if the error is not yet handled correctly
 var Unhandled = ResponseError{Message: "Unhandled error"}
 
+// Unhandled response if the error is not yet handled correctly
+var TimeOut = ResponseError{Message: "Time out while connecting to remote host"}
+
 // WrongUsername response if the username cannot be recognized
 var WrongUsername = ResponseError{Message: "Wrong username"}
 
