@@ -43,8 +43,8 @@ func showStar(w http.ResponseWriter, r *http.Request) {
 	s := stars.New(username)
 
 	repos, err := s.Repos()
-	if err != nil {
-		jsonErrorResonse(w, e.WrongUsername)
+	if err != (e.ResponseError{}) {
+		jsonErrorResonse(w, err)
 		return
 	}
 
@@ -68,6 +68,8 @@ func jsonResponse(w http.ResponseWriter, r []stars.StaredRepos) {
 }
 
 func jsonErrorResonse(w http.ResponseWriter, err e.ResponseError) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
 	errorJSON, _ := json.Marshal(err)
 	w.Write(errorJSON)
 }

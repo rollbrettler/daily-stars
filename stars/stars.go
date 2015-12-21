@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+
+	e "github.com/rollbrettler/daily-stars/errors"
 )
 
 const (
@@ -35,19 +37,20 @@ func New(username string) Stars {
 }
 
 // Repos returns a slice of StaredRepos
-func (s *Stars) Repos() ([]StaredRepos, error) {
+func (s *Stars) Repos() ([]StaredRepos, e.ResponseError) {
 
 	if err := s.setPagesCount(); err != nil {
-		return nil, err
+		log.Printf("Error in Repos after calling setPagesCount: %v\n", err)
+		return nil, e.Unhandled
 	}
 
 	r, err := s.starsFromPage(randomPageNumber(s.Pages))
 	if err != nil {
-		return nil, err
+		return nil, e.NoUsername
 	}
 	s.stared = append(s.stared, r...)
 
-	return s.stared, nil
+	return s.stared, e.ResponseError{}
 }
 
 func (s *Stars) setPagesCount() error {
@@ -61,7 +64,7 @@ func (s *Stars) setPagesCount() error {
 	defer resp.Body.Close()
 
 	s.Pages, err = pagesCount(resp.Header.Get("Link"))
-	log.Printf("%v\n", s.Pages)
+	log.Printf("%v Pages\n", s.Pages)
 
 	return nil
 }
