@@ -12,10 +12,10 @@ func TestNew(t *testing.T) {
 	s = New("rollbrettler")
 
 	if s.Username != "rollbrettler" {
-		t.Error("Expected 'rollbrettler', got ", s.Username)
+		t.Error("Expected 'rollbrettler', got: ", s.Username)
 	}
 	if s.Pages != 0 {
-		t.Error("Expected 0 Pages, got ", s.Pages)
+		t.Error("Expected 0 Pages, got: ", s.Pages)
 	}
 }
 
@@ -25,7 +25,7 @@ func TestRepos(t *testing.T) {
 	r, err := s.Repos()
 
 	if err != (e.ResponseError{}) {
-		t.Error("Expected no errors while fetching the repos, got ", err)
+		t.Error("Expected no errors while fetching the repos, got: ", err)
 		return
 	}
 
@@ -36,7 +36,23 @@ func TestRepos(t *testing.T) {
 	}
 
 	if s.Pages != 2 {
-		t.Error("Expected to fetch pages, got", s.Pages)
+		t.Error("Expected to fetch pages, got: ", s.Pages)
+		return
+	}
+}
+
+func TestReposWrongUsername(t *testing.T) {
+	var s Stars
+	s = New("UsernameThatDoesNotExist")
+	r, err := s.Repos()
+
+	if err != e.WrongUsername {
+		t.Error("Expected to return error for wrong username got: ", err)
+		return
+	}
+
+	if r != nil {
+		t.Error("Expected to return empty []StaredRepos got: ", r)
 		return
 	}
 }

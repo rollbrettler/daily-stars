@@ -13,7 +13,7 @@ func TestUsernameWithoutPrefix(t *testing.T) {
 	usernameTest, suffixTest = WithSuffix(u.Path)
 
 	if usernameTest != "username" {
-		t.Error("Expected username to be 'username' ", usernameTest)
+		t.Error("Expected username to be 'username' got: ", usernameTest)
 	}
 
 	if suffixTest != "" {
@@ -26,10 +26,10 @@ func TestUsernameWithPrefix(t *testing.T) {
 	usernameTest, suffixTest = WithSuffix(u.Path)
 
 	if usernameTest != "username" {
-		t.Error("Expected username to be 'username' ", usernameTest)
+		t.Error("Expected username to be 'username' got: ", usernameTest)
 	}
 
 	if suffixTest != "prefix" {
-		t.Error("Expected suffix to be 'prefix' ", suffixTest)
+		t.Error("Expected suffix to be 'prefix' got: ", suffixTest)
 	}
 }

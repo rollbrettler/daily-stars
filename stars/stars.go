@@ -49,8 +49,8 @@ func (s *Stars) Repos() ([]StaredRepos, e.ResponseError) {
 	errCh := make(chan e.ResponseError, 1)
 	go func() {
 		r, err := s.starsFromPage(randomPageNumber(s.Pages))
-		if err != nil {
-			errCh <- e.NoUsername
+		if err != (e.ResponseError{}) {
+			errCh <- err
 			return
 		}
 		c1 <- r
@@ -83,7 +83,7 @@ func (s *Stars) setPagesCount() error {
 	return nil
 }
 
-func (s *Stars) starsFromPage(p int) ([]StaredRepos, error) {
+func (s *Stars) starsFromPage(p int) ([]StaredRepos, e.ResponseError) {
 	var r []StaredRepos
 
 	apiURL := fmt.Sprintf(apiPath+"&page=%v", s.Username, strconv.Itoa(p))
@@ -91,14 +91,18 @@ func (s *Stars) starsFromPage(p int) ([]StaredRepos, error) {
 
 	resp, err := http.Get(apiURL)
 	if err != nil {
-		return nil, err
+		return nil, e.WrongUsername
 	}
 	defer resp.Body.Close()
 
-	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
-		log.Printf("%v\n", err)
-		return nil, err
+	if resp.StatusCode == 404 {
+		return nil, e.WrongUsername
 	}
 
-	return r, nil
+	if err := json.NewDecoder(resp.Body).Decode(&r); err != nil {
+		log.Printf("%v\n", err)
+		return nil, e.WrongUsername
+	}
+
+	return r, e.ResponseError{}
 }
