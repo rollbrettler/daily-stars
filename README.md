@@ -2,7 +2,7 @@
 
 Review stared GitHub repositories.
 
-![microservice-ready](https://img.shields.io/badge/Microservice-Ready%F0%9F%91%8D-green.svg)
+[![Build Status](https://travis-ci.org/rollbrettler/daily-stars.svg?branch=master)](https://travis-ci.org/rollbrettler/daily-stars)
 
 ## Install
 
