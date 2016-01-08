@@ -50,7 +50,7 @@ func randomPageNumber(i int) int {
 
 	year, month, day := time.Now().Date()
 
-	date := fmt.Sprintf("%v-%v-%v", year, month, day)
+	date := fmt.Sprintf("%v-%v-%02d", year, month, day)
 	t, _ := time.Parse(shortForm, date)
 	rand.Seed(t.Unix())
 
