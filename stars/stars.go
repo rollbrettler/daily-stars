@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 	"strconv"
 	"time"
 
@@ -21,6 +20,8 @@ type Stars struct {
 	Pages    int
 	Username string
 	stared   []StaredRepos
+	apiUser  string
+	token    string
 }
 
 // StaredRepos is a struct to unmarshal the json response
@@ -31,9 +32,11 @@ type StaredRepos struct {
 }
 
 // New returns a new stars struct with the given username
-func New(username string) Stars {
+func New(username, apiUser, token string) Stars {
 	return Stars{
 		Username: username,
+		apiUser:  apiUser,
+		token:    token,
 	}
 }
 
@@ -71,7 +74,7 @@ func (s *Stars) setPagesCount() error {
 	apiURL := fmt.Sprintf(apiPath, s.Username)
 	log.Printf("%v\n", apiURL)
 
-	resp, err := http.Get(apiURL)
+	resp, err := s.apiGetRequest(apiURL)
 	if err != nil {
 		return err
 	}
@@ -89,7 +92,8 @@ func (s *Stars) starsFromPage(p int) ([]StaredRepos, e.ResponseError) {
 	apiURL := fmt.Sprintf(apiPath+"&page=%v", s.Username, strconv.Itoa(p))
 	log.Printf("%v\n", apiURL)
 
-	resp, err := http.Get(apiURL)
+	resp, err := s.apiGetRequest(apiURL)
+
 	if err != nil {
 		return nil, e.WrongUsername
 	}

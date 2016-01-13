@@ -9,7 +9,7 @@ import (
 
 func TestNew(t *testing.T) {
 	var s Stars
-	s = New("rollbrettler")
+	s = New("rollbrettler", "", "")
 
 	if s.Username != "rollbrettler" {
 		t.Error("Expected 'rollbrettler', got: ", s.Username)
@@ -21,7 +21,7 @@ func TestNew(t *testing.T) {
 
 func TestRepos(t *testing.T) {
 	var s Stars
-	s = New("octocat")
+	s = New("octocat", "", "")
 	r, err := s.Repos()
 
 	if err != (e.ResponseError{}) {
@@ -43,7 +43,7 @@ func TestRepos(t *testing.T) {
 
 func TestReposWrongUsername(t *testing.T) {
 	var s Stars
-	s = New("UsernameThatDoesNotExist")
+	s = New("UsernameThatDoesNotExist", "", "")
 	r, err := s.Repos()
 
 	if err != e.WrongUsername {

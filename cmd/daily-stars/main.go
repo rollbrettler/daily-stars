@@ -13,9 +13,13 @@ import (
 )
 
 var port string
+var apiUser string
+var token string
 
 func init() {
 	flag.StringVar(&port, "port", ":8001", "Port to listen on")
+	flag.StringVar(&apiUser, "apiUser", "", "GitHub Username for an authorized request")
+	flag.StringVar(&token, "token", "", "GitHub token for an authorized request")
 }
 
 func main() {
@@ -40,7 +44,7 @@ func showStar(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("Username: %v\n", username)
 
-	s := stars.New(username)
+	s := stars.New(username, apiUser, token)
 
 	repos, err := s.Repos()
 	if err != (e.ResponseError{}) {
@@ -77,9 +81,15 @@ func jsonErrorResonse(w http.ResponseWriter, err e.ResponseError) {
 func parseConfigFlags() {
 	flag.Parse()
 
-	envPort := os.Getenv("PORT")
-
-	if envPort != "" {
+	if envPort := os.Getenv("PORT"); envPort != "" {
 		port = ":" + envPort
+	}
+
+	if envAPIUser := os.Getenv("APIUSER"); envAPIUser != "" {
+		apiUser = envAPIUser
+	}
+
+	if envToken := os.Getenv("TOKEN"); envToken != "" {
+		token = envToken
 	}
 }
