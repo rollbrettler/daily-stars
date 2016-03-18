@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	e "github.com/rollbrettler/daily-stars/errors"
 	"github.com/rollbrettler/daily-stars/stars"
@@ -16,6 +17,7 @@ var port string
 var apiUser string
 var token string
 var rateLimit int
+var lastAction time.Time
 
 func init() {
 	flag.StringVar(&port, "port", ":8001", "Port to listen on")
@@ -39,7 +41,7 @@ func handleFavicon(w http.ResponseWriter, r *http.Request) {
 
 func showStar(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/ping" {
-		renderStatus(w)
+		status(w)
 		return
 	}
 
@@ -59,6 +61,7 @@ func showStar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rateLimit = s.RateLimit
+	lastAction = time.Now().UTC()
 
 	switch suffix {
 	case "json":
@@ -102,13 +105,15 @@ func parseConfigFlags() {
 	}
 }
 
-func renderStatus(w http.ResponseWriter) {
-	type ColorGroup struct {
-		RateLimit int
+func status(w http.ResponseWriter) {
+	type status struct {
+		RateLimit  int       `json:"rate_limit"`
+		LastAction time.Time `json:"last_action"`
 	}
 
-	marshaledJSON, err := json.Marshal(ColorGroup{
-		RateLimit: rateLimit,
+	marshaledJSON, err := json.Marshal(status{
+		RateLimit:  rateLimit,
+		LastAction: lastAction,
 	})
 	if err != nil {
 		jsonErrorResonse(w, e.WrongUsername)
