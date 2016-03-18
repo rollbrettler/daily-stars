@@ -17,11 +17,12 @@ const (
 
 // Stars is the returned struct
 type Stars struct {
-	Pages    int
-	Username string
-	stared   []StaredRepos
-	apiUser  string
-	token    string
+	Pages     int
+	RateLimit int
+	Username  string
+	apiUser   string
+	stared    []StaredRepos
+	token     string
 }
 
 // StaredRepos is a struct to unmarshal the json response

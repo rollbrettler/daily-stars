@@ -3,6 +3,7 @@ package stars
 import (
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func (s *Stars) apiGetRequest(apiURL string) (*http.Response, error) {
@@ -18,7 +19,11 @@ func (s *Stars) apiGetRequest(apiURL string) (*http.Response, error) {
 		return nil, err
 	}
 
-	log.Printf("Remaining requests: %v\n", resp.Header.Get("X-Ratelimit-Remaining"))
+	s.RateLimit, err = strconv.Atoi(resp.Header.Get("X-Ratelimit-Remaining"))
+	if err != nil {
+		s.RateLimit = 0
+	}
+	log.Printf("Remaining requests: %v\n", s.RateLimit)
 
 	return resp, nil
 }

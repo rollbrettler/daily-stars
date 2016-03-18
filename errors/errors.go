@@ -1,4 +1,4 @@
-package errors
+package stars
 
 // ResponseError to be rendered as a error response
 type ResponseError struct {

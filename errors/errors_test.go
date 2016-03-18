@@ -1,4 +1,4 @@
-package errors
+package stars
 
 import (
 	"encoding/json"

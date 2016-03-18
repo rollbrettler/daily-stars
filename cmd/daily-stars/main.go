@@ -15,6 +15,7 @@ import (
 var port string
 var apiUser string
 var token string
+var rateLimit int
 
 func init() {
 	flag.StringVar(&port, "port", ":8001", "Port to listen on")
@@ -37,6 +38,11 @@ func handleFavicon(w http.ResponseWriter, r *http.Request) {
 }
 
 func showStar(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/ping" {
+		renderStatus(w)
+		return
+	}
+
 	username, suffix := username.WithSuffix(r.URL.Path)
 	if username == "" {
 		jsonErrorResonse(w, e.NoUsername)
@@ -51,6 +57,8 @@ func showStar(w http.ResponseWriter, r *http.Request) {
 		jsonErrorResonse(w, err)
 		return
 	}
+
+	rateLimit = s.RateLimit
 
 	switch suffix {
 	case "json":
@@ -92,4 +100,20 @@ func parseConfigFlags() {
 	if envToken := os.Getenv("TOKEN"); envToken != "" {
 		token = envToken
 	}
+}
+
+func renderStatus(w http.ResponseWriter) {
+	type ColorGroup struct {
+		RateLimit int
+	}
+
+	marshaledJSON, err := json.Marshal(ColorGroup{
+		RateLimit: rateLimit,
+	})
+	if err != nil {
+		jsonErrorResonse(w, e.WrongUsername)
+		return
+	}
+	w.Write(marshaledJSON)
+	return
 }
