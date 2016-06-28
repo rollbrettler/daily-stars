@@ -1,0 +1,69 @@
+---
+layout: default
+---
+
+<div class="demo-card-wide mdl-card mdl-shadow--2dp">
+  <div class="mdl-card__supporting-text">
+    <form action="#">
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="username" autocomplete="off">
+        <label class="mdl-textfield__label" for="username">Your GitHub username</label>
+      </div>
+    </form>
+  </div>
+  <div class="mdl-card__title">
+    <h2 class="mdl-card__title-text" id="github-project-name">daily-stars</h2>
+  </div>
+  <div class="mdl-card__supporting-text mdl-card--border" id="github-project-description">
+    Review stared GitHub repositories
+  </div>
+  <div class="mdl-card__actions mdl-card--border">
+    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="https://github.com/rollbrettler/daily-stars/" target="_blank" id="github-project-link">
+      Visit GitHub repository
+    </a>
+  </div>
+  <div class="mdl-card__menu">
+    <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect">
+      <i class="material-icons">share</i>
+    </button>
+  </div>
+</div>
+<script type="text/javascript">
+
+  function fetchStaredRepo(githubUsername) {
+    fetch('https://daily-stars.rollbrettler.com/' + githubUsername, {
+      method: 'GET',
+      mode: 'cors',
+      redirect: 'follow',
+      headers: new Headers({
+        'Content-Type': 'text/plain'
+      })
+    })
+    .then(function(response) { return response.json() })
+    .then(function(json) {
+      if(json != null || typeof json !== 'undefined') {
+        document.getElementById('github-project-name').innerHTML = json[0].name
+        document.getElementById('github-project-description').innerHTML = json[0].description
+        document.getElementById('github-project-link').href = json[0].html_url
+      }
+    })
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+
+    var githubUsername = window.location.hash.slice(1)
+
+    if (githubUsername !== "") {
+      document.getElementById('username').value = githubUsername
+      fetchStaredRepo(githubUsername)
+    }
+
+    document.getElementById('username').addEventListener('keyup', _.debounce(function(event) {
+      event.preventDefault()
+      var githubUsername = event.target.value
+      window.location.hash = '#' + githubUsername
+      fetchStaredRepo(githubUsername)
+    }, 500))
+
+  })
+</script>
