@@ -10,7 +10,7 @@ title: Get your daily GitHub star recommendation
 email:
 description: > # this means to ignore newlines until "baseurl:"
   Get your daily GitHub star recommendation
-baseurl: "" # the subpath of your site, e.g. /blog
+baseurl: "/daily-stars" # the subpath of your site, e.g. /blog
 url: "https://rollbrettler.github.io/daily-stars" # the base hostname & protocol for your site
 github_username:  rollbrettler
 
