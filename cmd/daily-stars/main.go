@@ -63,6 +63,7 @@ func showStar(w http.ResponseWriter, r *http.Request) {
 	rateLimit = s.RateLimit
 	lastAction = time.Now().UTC()
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	switch suffix {
 	case "json":
 		jsonResponse(w, repos)
