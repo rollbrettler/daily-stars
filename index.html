@@ -31,7 +31,7 @@ layout: default
 <script type="text/javascript">
 
   function fetchStaredRepo(githubUsername) {
-    fetch('https://daily-stars.rollbrettler.com/' + githubUsername, {
+    fetch('https://daily-stars.herokuapp.com/' + githubUsername, {
       method: 'GET',
       mode: 'cors',
       redirect: 'follow',
