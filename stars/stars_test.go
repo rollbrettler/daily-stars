@@ -35,8 +35,8 @@ func TestRepos(t *testing.T) {
 		return
 	}
 
-	if s.Pages != 2 {
-		t.Error("Expected to fetch pages, got: ", s.Pages)
+	if s.Pages != 3 {
+		t.Error("Expected to fetch 3 pages, got: ", s.Pages)
 		return
 	}
 }

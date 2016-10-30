@@ -2,7 +2,9 @@ PWD=$(shell pwd)
 BUILD_DIR?=$(shell pwd)/build
 GOX_OS?=linux darwin windows solaris freebsd netbsd openbsd
 
-.PHONY: crosscompile
+test:
+	go test -race ./...
+
 crosscompile:
 	go get github.com/mitchellh/gox
 	mkdir -p ${BUILD_DIR}/bin
